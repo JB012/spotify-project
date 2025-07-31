@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --primary-green-color: #1DB954
+}
+
+html {
+  background-color: #141414;
+  color: white;
+}
+
+.green-text {
+  color: var(--primary-green-color);
+}
+
+.sub-text {
+  color: gray;
+  font-size: smaller;
+}
