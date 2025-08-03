@@ -3,36 +3,46 @@ const axios = require('axios');
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require('body-parser');
-const { use } = require("react");
+
+require("dotenv").config({
+    path: path.resolve(__dirname, ".env")
+});
 
 const corsOptions = {
     origin: ["http://[::1]:5173"]
 };
 const app = express();
+
 app.use(cors(corsOptions));
+
 app.use(express.static(path.join(__dirname + "\\..")));
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-CLIENT_ID = "abc07599e714445188e214243ba389dc";
-CLIENT_SECRET = "45e6e0ce7f7d4d1dad93aad10168ee34";
-REDIRECT_URI = `http://[::1]:5173/callback`;
-SCOPE = ["user-read-email","user-read-private"];
-PORT=3001;
+const clientID = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const redirectURI = "http://[::1]:5173/callback";
+const scope = ["user-read-email","user-read-private", "user-follow-read", "user-top-read", "user-read-recently-played"];
+const port = 3001;
 
-app.post("/login", (request, response) => {
+app.get("/login", (req, res) => {
+    res.redirect(`https://accounts.spotify.com/authorize?response_type=code&client_id=${clientID}&scope=${scope}&state=123456&redirect_uri=${redirectURI}&prompt=consent`);
+});
+
+app.post("/authorize", (request, response) => {
     const code = request.body.code;
     axios.post(
         url = 'https://accounts.spotify.com/api/token',
         data = new URLSearchParams({
             'grant_type': 'authorization_code',
-            'redirect_uri': REDIRECT_URI,
+            'redirect_uri': redirectURI,
             'code': code
         }),
         config = {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+                'Authorization': 'Basic ' + (new Buffer.from(clientID + ':' + clientSecret).toString('base64'))
             }
         })
         .then(resp1 => {
@@ -48,7 +58,7 @@ app.post("/refresh", async (req, res) => {
         url: 'https://accounts.spotify.com/api/token',
         headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+        'Authorization': 'Basic ' + (new Buffer.from(clientID + ':' + clientSecret).toString('base64'))
         },
         form: {
         grant_type: 'refresh_token',
@@ -69,6 +79,6 @@ app.post("/refresh", async (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Listening on :${PORT}`)
+app.listen(port, () => {
+    console.log(`Listening on :${port}`)
 })

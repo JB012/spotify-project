@@ -8,7 +8,7 @@ function useAuth(code) {
     const [userData, setUserData] = useState({data: ""});
     useEffect(() => {
         //TODO: catch(err => if status 401 then refresh tokens)
-        axios.post("http://[::1]:3001/login", {code}).then(json => {
+        axios.post("http://[::1]:3001/authorize", {code}).then(json => {
             
             /* setAccessToken(json.data.access_token);
             setRefreshToken(json.data.refresh_token);
