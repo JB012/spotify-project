@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --primary-green-color: #1DB954
+  --primary-green-color: #1DB954;
+  --primary-gray-color: #141414;
 }
 
 html {
-  background-color: #141414;
+  background-color: var(--primary-gray-color);
   color: white;
 }
 
@@ -16,4 +17,30 @@ html {
 .sub-text {
   color: gray;
   font-size: smaller;
+}
+
+.top-artists-item, .top-tracks-item {
+  display: flex;
+  padding-top: 30px;
+  gap: 15px;
+  align-items: center;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  background-color: black;
+  width: 110px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+}
+
+select {
+  background-color: var(--primary-gray-color);
+}
+
+::selection, ::-moz-selection {
+  background-color: var(--primary-green-color);
+  color: black;
 }
