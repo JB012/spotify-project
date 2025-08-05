@@ -3,6 +3,7 @@ import axios from 'axios'
 import useAuth from "./useAuth";
 import '../App.css'
 import { replace, useNavigate } from "react-router";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 function pad(num) {
     return (num < 10) ? '0' + num.toString() : num.toString();
@@ -14,10 +15,14 @@ function convertDurationToMinSec(duration_ms) {
 }
 function Profile({code}) {
     //Writing as a custom Hook deduplicates requests and cache responses between components. 
-    const {data: userData} = useAuth(code);
+    //const {data: userData} = useAuth(code);
     const [topArtists, setTopArtists] = useState([]);
+    const [userData, setUserData] = useState({data: ""});
     const [topTracks, setTopTracks] = useState([]);
     const [timeRange, setTimeRange] = useState("");
+    const [accessToken, setAccessToken] = useLocalStorage("access_token","");
+    const [refreshToken, setRefreshToken] = useLocalStorage("refresh_token","");
+    const [expiresIn, setExpiresIn] = useLocalStorage("expires_in","");
     /* const [currentPage, setCurrentPage] = useState("Profile");
     const navigate = useNavigate(); */
 
@@ -45,23 +50,46 @@ function Profile({code}) {
     }
 
     useEffect(() => {
-        if (userData !== '') {
-            axios.get("https://api.spotify.com/v1/me/top/artists?time_range=short_term", {
+        if (accessToken === '') {
+            axios.post("http://[::1]:3001/authorize", {code}).then(json => {
+                setAccessToken(json.data.access_token);
+                setRefreshToken(json.data.refresh_token);
+                setExpiresIn(json.data.expires_in);
+            });
+        }
+        
+        if (accessToken !== '' && userData["data"] == "") {
+            axios.get("https://api.spotify.com/v1/me", {
                 headers: {
-                    Authorization: `Bearer ${userData["access_token"]}`
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }).then(jsonData => {
+                axios.get("https://api.spotify.com/v1/me/following?type=artist", {
+                    headers: {
+                    Authorization: `Bearer ${accessToken}`
+                   } 
+                }).then(followingList => {
+                    axios.get("https://api.spotify.com/v1/me/top/artists?time_range=short_term", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
                 }
             }).then(topArtists => {
                 axios.get("https://api.spotify.com/v1/me/top/tracks?time_range=short_term", {
                     headers: {
-                        Authorization: `Bearer ${userData["access_token"]}`
+                        Authorization: `Bearer ${accessToken}`
                     }
-                }).then(topTracks => {    
-                    setTopArtists(topArtists.data.items);
-                    setTopTracks(topTracks.data.items);
-                }).catch(err => console.log(err.response.data));
-            }).catch(e => console.log(e.response.data));
+                    }).then(topTracks => {    
+                        setTopArtists(topArtists.data.items);
+                        setTopTracks(topTracks.data.items); 
+                        setUserData({data: {...jsonData.data, following: followingList.data.artists}});
+                    }).catch(err => console.log(err.response.data));
+                }).catch(e => console.log(e.response.data));
+                }).catch(err => {
+                    console.log(err.response.data);
+                });
+            });
         }
-    }, [userData]);
+    }, [accessToken, code, setAccessToken, setExpiresIn, setRefreshToken, userData]);
 
     return (
         <>
@@ -83,15 +111,15 @@ function Profile({code}) {
             <div className="container w-full h-full pl-50 pt-20 pr-20">
                 <header id="header-container" className="flex flex-col gap-y-10 justify-center items-center w-full h-full">
                     <div className="text-3xl font-bold">
-                        {userData["display_name"]}
+                        {userData.data["display_name"]}
                     </div>
                     <div className="flex justify-center items-center gap-4">
                         <div className="flex flex-col text-center">
-                            <div className="green-text">{userData.followers?.total}</div>
+                            <div className="green-text">{userData.data.followers?.total}</div>
                             <div className="sub-text">FOLLOWERS</div>
                         </div>
                         <div className="flex flex-col text-center">
-                            <div className="green-text">{userData.following?.total}</div>
+                            <div className="green-text">{userData.data.following?.total}</div>
                             <div className="sub-text">FOLLOWING</div>
                         </div>
                     </div>

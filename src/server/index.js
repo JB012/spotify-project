@@ -22,7 +22,7 @@ app.use(bodyParser.json())
 
 const clientID = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
-const redirectURI = "http://[::1]:5173/callback";
+const redirectURI = "http://[::1]:5173/profile";
 const scope = ["user-read-email","user-read-private", "user-follow-read", "user-top-read", "user-read-recently-played"];
 const port = 3001;
 
@@ -47,7 +47,7 @@ app.post("/authorize", (request, response) => {
         })
         .then(resp1 => {
             return response.send(JSON.stringify(resp1.data));
-        }).catch(err => console.log(err.response.data));
+        }).catch(err => {console.log(err.response.data);console.log("/authorize error")});
 
 })
 

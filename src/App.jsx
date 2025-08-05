@@ -9,12 +9,20 @@ const code = new URLSearchParams(window.location.search).get("code");
 
 function App() {
   //TODO: Make callback /profile
+  const [currentCode, setCurrentCode] = useLocalStorage("code", code);
+
+  useEffect(() => {
+    if (code) {
+      history.replaceState({search: ""}, "", "/profile");
+      setCurrentCode(code);
+    }
+  }, [setCurrentCode]);
   
   return (
     <Routes>
       <Route path="/" element={<Login />}/>
-      <Route path="/profile" element={<Pages currentPage={"Profile"} code={code} />}/>
-      <Route path="/player" element={<Pages currentPage={"Player"} code={code} />}/>
+      <Route path="/profile" element={<Pages currentPage={"Profile"} code={currentCode} />}/>
+      <Route path="/player" element={<Pages currentPage={"Player"} code={currentCode} />}/>
     </Routes>
   );
 }
