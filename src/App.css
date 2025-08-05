@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --primary-green-color: #1DB954;
+  --primary-green-color: #1ED760;
   --primary-gray-color: #141414;
 }
 
@@ -29,6 +29,8 @@ html {
 nav {
   display: flex;
   flex-direction: column;
+  padding-top: 10px;
+  padding-bottom: 10px;
   background-color: black;
   width: 110px;
   height: 100%;
