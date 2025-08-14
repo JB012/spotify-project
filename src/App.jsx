@@ -8,15 +8,16 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 const code = new URLSearchParams(window.location.search).get("code");
 
 function App() {
-  //TODO: Make callback /profile
   const [currentCode, setCurrentCode] = useLocalStorage("code", code);
 
   useEffect(() => {
-    if (code) {
+    if (currentCode) {
       history.replaceState({search: ""}, "", "/profile");
-      setCurrentCode(code);
     }
-  }, [setCurrentCode]);
+    else {
+      localStorage.clear();
+    }
+  }, [currentCode]);
   
   return (
     <Routes>

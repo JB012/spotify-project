@@ -23,7 +23,7 @@ app.use(bodyParser.json())
 const clientID = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const redirectURI = "http://[::1]:5173/profile";
-const scope = ["user-read-email","user-read-private", "user-follow-read", "user-top-read", "user-read-recently-played"];
+const scope = ["user-read-email","user-read-private", "user-read-playback-state", "user-follow-read", "user-top-read", "user-read-recently-played"];
 const port = 3001;
 
 app.get("/login", (req, res) => {

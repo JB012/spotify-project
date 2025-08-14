@@ -28,17 +28,17 @@ function Profile({code}) {
 
     function handleTimeRange(event) {
         const timeRange = event.target.value;
-        if (timeRange !== "") {
+        if (timeRange !== "" && accessToken !== "") {
             event.target.style.color = "white";
 
             axios.get(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}`, {
                 headers: {
-                    Authorization: `Bearer ${userData["access_token"]}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             }).then(topArtists => {
                 axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}`, {
                     headers: {
-                        Authorization: `Bearer ${userData["access_token"]}`
+                        Authorization: `Bearer ${accessToken}`
                     }
                 }).then(topTracks => {
                     setTimeRange(timeRange);    
@@ -46,6 +46,9 @@ function Profile({code}) {
                     setTopTracks(topTracks.data.items);
                 }).catch(err => console.log(err.response.data));
             }).catch(e => console.log(e.response.data));
+        }
+        else {
+            console.log("Couldn't load");
         }
     }
 
